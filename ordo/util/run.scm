@@ -1,0 +1,30 @@
+(define-module (ordo util run)
+  #:use-module (ice-9 textual-ports)
+  #:export (run with-cwd))
+
+(define-syntax with-cwd
+  (syntax-rules ()
+    ((_ new-dir body ...)
+     (let ((original-dir (getcwd)))
+       (dynamic-wind
+         (lambda () (chdir new-dir))
+         (lambda () body ...)
+         (lambda () (chdir original-dir)))))))
+
+(define* (run cmd #:optional (args '()) #:key (combine-output #f) (env #f) (stdin #f) (cwd #f))
+  (if cwd
+      (with-cwd cwd (run cmd args #:combine-output combine-output #:env env #:stdin stdin))
+      (let* ((input-pipe (pipe))
+             (output-pipe (pipe))
+             (pid (spawn cmd (cons cmd args)
+                         #:input (car input-pipe)
+                         #:output (cdr output-pipe)
+                         #:error (if combine-output (cdr output-pipe) (current-error-port))
+                         #:environment (or env (environ)))))
+        (close-port (cdr output-pipe))
+        (close-port (car input-pipe))
+        (when stdin (put-string (cdr input-pipe) stdin))
+        (close-port (cdr input-pipe))
+        (let ((output (get-string-all (car output-pipe))))
+          (close-port (car output-pipe))
+          (values (cdr (waitpid pid)) output)))))
