@@ -3,13 +3,13 @@
   #:use-module (srfi srfi-11)
   #:use-module (ordo task)
   #:use-module (ordo util run)
-  #:export (task-command))
+  #:export (command))
 
-
-(define* (task-command name cmd #:optional (args '())
-                       #:key (fail-ok? #f) (stdin #f) (cwd #f) (env #f))
+(define* (command name cmd #:optional (args '())
+                  #:key (fail-ok? #f) (stdin #f) (cwd #f) (env #f) (skip? #f))
   (make-task name
-             #f
+             '()
+             skip?
              (lambda ()
                (let-values (((exit-code output) (run cmd args #:stdin stdin #:cwd cwd #:env env #:combine-output #t)))
                  (if (or fail-ok? (zero? exit-code))
