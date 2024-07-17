@@ -2,7 +2,7 @@
   #:use-module (ice-9 format)
   #:use-module (srfi srfi-11)
   #:use-module (ordo task)
-  #:use-module (ordo util run)
+  #:use-module (ordo util process)
   #:export (command))
 
 (define* (command name cmd #:optional (args '())
