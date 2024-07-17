@@ -52,9 +52,7 @@
 (define (call-with-temporary-directory proc)
   "Call PROC with a name of a temporary directory; close the directory and
 delete it when leaving the dynamic extent of this call."
-  (let* ((directory (or (getenv "TMPDIR") "/tmp"))
-         (template  (string-append directory "/ordo.XXXXXX"))
-         (tmp-dir   (mkdtemp! template)))
+  (let ((tmp-dir (create-temporary-directory)))
     (dynamic-wind
       (const #t)
       (lambda ()
