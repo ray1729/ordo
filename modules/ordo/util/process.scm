@@ -1,6 +1,6 @@
 (define-module (ordo util process)
   #:use-module (ice-9 textual-ports)
-  #:export (run with-cwd))
+  #:export (with-cwd with-env capture))
 
 (define-syntax with-cwd
   (syntax-rules ()
